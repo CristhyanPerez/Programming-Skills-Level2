@@ -3,7 +3,7 @@ import pandas as pd
 import random
 
 #Declare list
-bix_six = ["Manchester United", "Liverpool", "Arsenal", "Chelsea", "Manchester City", "Tottenham Hotspur"]  #List of teams
+big_six = ["Manchester United", "Liverpool", "Arsenal", "Chelsea", "Manchester City", "Tottenham Hotspur"]  #List of teams
 headers_teams = ["Team", "Played", "Won", "Drawn", "Lost", "GF", "GA", "GD", "Points"]  #Column header of the first dataframe
 header_games = ["Team_01", "Goals_01", "Team_02", "Goals_02"]   #Column header of the second dataframe
 available_yes_no = ["y", "yes", "YES", "n", "no", "NO"]
@@ -76,7 +76,7 @@ def games_played(number_games, first_team, second_team, first_df, second_df):
 
 #Function to traverse the list. This function allows you to face different teams without repeating
 def big_six_random(six_teams, df_01, df_02):
-    lenght_teams = len(bix_six)
+    lenght_teams = len(big_six)
     for i in range(lenght_teams):
         for j in range(lenght_teams):
             if j > i :
@@ -89,29 +89,94 @@ def big_six_random(six_teams, df_01, df_02):
     #Sort by points from highest to lowest
     df_01.sort_values(by='Points', ascending=False, inplace=True)
 
+#Function to choose two teams from a list. Without repeating
+def choose_2_teams(menu, list_teams):
+    list_options_01 = []
+    list_options_02 = list_teams
+    list_options_03 = []
+    number_options = len(list_options_02)
+    for j in range(2):
+        print(menu)
+        for i in range(1, number_options + 1):
+            print(f"{i}- { list_options_02[i-1]}")
+            option = str(i)
+            list_options_01.append(option)
+        question = f"\nChoose a team (1 - {number_options}): "
+        team_choose_01 = check_answer(question, list_options_01)
+        index = int(team_choose_01) - 1
+        team_number_01 = list_teams[index]
+        list_options_03.append(team_number_01)
+        list_options_02.remove(team_number_01)
+        number_options = len(list_options_02)
+    list_options_02 = []
+    return list_options_03
+
+#Function that will be used to give 2 chosen teams, order them from
+#lowest to highest according to their index and return the two ordered teams
+def teams_and_values(list_six_teams, two_teams):
+    index_01 = list_six_teams.index(two_teams[0])
+    index_02 = list_six_teams.index(two_teams[1])
+    if index_01 < index_02:
+        value_01 = index_01
+        value_02 = index_02
+    else:
+        value_01 = index_02
+        value_02 = index_01
+    team_1_match = list_six_teams[value_01]
+    team_2_match = list_six_teams[value_02]
+    return team_1_match, team_2_match
+
+#Summary of matches between two teams
+def summary_option_2(data, team_01, team_02):
+    list_01 = data['Goals_01'].tolist()
+    list_02 = data['Goals_02'].tolist()
+    print("\nSummary of matchs:\n")
+    for i in range(1, 4):
+        print(f"Match 0{i}  |   {team_01} ({list_01[i-1]})   -   {team_02} ({list_02[i-1]})") 
+
 #Message to exit the program
 def message_custom(sentence):
-    print()
     print(sentence)
     print("Thank you")
     print("Come back soon\n")
 
 #Initial menu
 menu_start = """
+*************************    Premier League    *************************
 
+Welcome to your favourite Premier League Blog.
+
+Options:
+1. See position table
+2. Scoreboard of a duel between two teams
+"""
+
+second_menu = """
+Teams available:
 """
 
 #Main Function
 def main():
     reset_main_menu = True
+    df_points, df_games = create_df()
+    big_six_00 = ["Manchester United", "Liverpool", "Arsenal", "Chelsea", "Manchester City", "Tottenham Hotspur"]
+    big_six_random(big_six_00, df_points, df_games)
     while reset_main_menu == True:
-
         print(menu_start)
         chosen_option = check_answer("Chose one of the options (1, 2): ", options_menu)
+        pass
+        #Todo lo relacionado con crear el dataframe y asignarle los valores aleatorios correspondientes
         if chosen_option == "1":
-            print("opcion_1")
+            print()
+            print(df_points.to_string(index=False))
         elif chosen_option == "2":
-            print("opcion_2")
+            big_six_01 = ["Manchester United", "Liverpool", "Arsenal", "Chelsea", "Manchester City", "Tottenham Hotspur"]
+            list_2_teams = choose_2_teams(second_menu, big_six_01)
+            big_six_02 = ["Manchester United", "Liverpool", "Arsenal", "Chelsea", "Manchester City", "Tottenham Hotspur"]
+            team_01, team_02 = teams_and_values(big_six_02, list_2_teams)
+            df_filtered_1 = df_games.loc[(df_games["Team_01"] == team_01)]
+            df_filtered_2 = df_filtered_1.loc[(df_filtered_1["Team_02"] == team_02)]
+            summary_option_2(df_filtered_2, team_01, team_02)
         question_menu = check_answer("\nDo you want to return to the main menu? (y/n): ", available_yes_no)
         if question_menu in available_yes_no[0:3]:
             print("\nLet's start again..!!!!\n")
@@ -123,7 +188,3 @@ def main():
 #Entry point
 if __name__ == "__main__":
     main()
-
-#Hace falta una funcion para acceder a los partidos entre dos equipos en particular
-    
-#Hay que probarlo con un dataframe más pequeño de 3 equipos para poder ver el funcionamiento
