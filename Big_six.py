@@ -164,8 +164,6 @@ def main():
     while reset_main_menu == True:
         print(menu_start)
         chosen_option = check_answer("Chose one of the options (1, 2): ", options_menu)
-        pass
-        #Todo lo relacionado con crear el dataframe y asignarle los valores aleatorios correspondientes
         if chosen_option == "1":
             print()
             print(df_points.to_string(index=False))
