@@ -4,7 +4,7 @@ import csv
 import pandas as pd
 
 #Declare list
-options_menu = ["1", "2", "3"]
+options_menu = ["1", "2", "3", "4", "5", "6", "7"]
 available_yes_no = ["y", "yes", "YES", "n", "no", "NO"]
 
 #Given a question and a list of answers, the function will evaluate if the
@@ -16,7 +16,7 @@ def check_answer(question, list_answers):
         if option_user in list_answers:
             start_check = True
         else:
-            print("Wrong option. Let's go again\n")
+            print("    Wrong option. Let's go again\n")
     return option_user
 
 #Funtion to verify the existence of .csv file. If it doesn't exist, it's created
@@ -31,11 +31,62 @@ def transform_dataset(file):
     dataframe = pd.read_csv(file, names = ["Name", "Jersey Number", "Position", "Age", "Height(cm)", "Weight(Kg)", "Goals", "Points Speed", "Points Assists", "Passing accuracy", "Defensive Involving"], sep = "\t")
     return dataframe
 
+#Function to display the dataframe
+def show_data(dataframe):
+    print("\n    Full list of players:\n")
+    print(dataframe.to_string(index=False))
+
+#Function to add values to csv file
+def add_values_csv(file, data_list):
+    path_csv_file = os.path.join(os.path.dirname(__file__), file)
+    with open(path_csv_file, "a", newline = "") as file_csv:
+        write_csv = csv.writer(file_csv, delimiter = "\t")
+        write_csv.writerow(data_list)
+
+#Function to add new players
+def players_new(file, options):
+    add_player = True
+    count = 1
+    while add_player == True:
+        list_data_player = []
+        print(f"\n    Add Player data #{count}:")
+        name_user = input("    Name:                ")
+        jersey_user = input("    Jersey Number:       ")
+        position_user = input("    Position:            ")
+        age_user = input("    Age:                 ")
+        height_user = input("    Height(cm):          ")
+        weight_user = input("    Weight(Kg):          ")
+        goals_user = input("    Goals:               ")
+        speed_user = input("    Point Speed:         ")
+        assits_user = input("    Point Assits:        ")
+        accuracy_user = input("    Passing Accuracy:    ")
+        defensive_user = input("    Defensive including: ")
+        list_data_player = [name_user, jersey_user, position_user, age_user, height_user, weight_user, goals_user, speed_user, assits_user, accuracy_user, defensive_user]
+        question_add_player_01 = check_answer("\n    Are you sure about adding the player with these characteristics? (y/n): ", options)
+        if question_add_player_01 in options[0:3]:
+            add_values_csv(file, list_data_player)
+            print("\n    Player successfully added..!!!!\n")
+            question_add_player_02 = check_answer("\n    Do you want to add another player? (y/n): ", options)
+            if question_add_player_02 in options[0:3]:
+                count = count + 1
+                add_player = True
+            else:        
+                print("\n    OK..!!!!\n")
+                add_player = False
+        else:        
+            print("\n    OK..!!!!\n")
+            question_add_player_03 = check_answer("\n    Do you want to exit the 'add players' option? (y/n): ", options)
+            if question_add_player_03 in options[0:3]:
+                print("\n    OK..!!!!\n")
+                add_player = False
+            else:
+                add_player = True
+
 #Function to show the characteristics of a specific player throught the jersey number
 def player_characterics(list_options_jersey, df):
-    print("\nJersey number available to review:", ", ".join(map(str, list_options_jersey)), "\n")
+    print("\n    Jersey number available to review:", ", ".join(map(str, list_options_jersey)), "\n")
     print()
-    question = "Choose a jersey number: "
+    question = "    Choose a jersey number: "
     option_jersey = int(check_answer(question, list_options_jersey))
     #Searched in the dataframe, to which index the entered jersey corresponds
     index = df[df["Jersey Number"] == option_jersey].index[0]
@@ -63,17 +114,16 @@ def player_characterics(list_options_jersey, df):
 def player_compare(list_options_jersey, df):
     list_available = []
     list_available = list_options_jersey
-    print("\nJersey number available to review:", ", ".join(map(str, list_options_jersey)), "\n")
+    print("\n    Jersey number available to review:", ", ".join(map(str, list_options_jersey)), "\n")
     #We request the first jersey number to compare
-    question_1 = "Choose a jersey number: "
+    question_1 = "    Choose a jersey number: "
     option_jersey_1 = check_answer(question_1, list_available)
-    print(list_available)
     list_available.remove(option_jersey_1)
     option_jersey_1 = int(option_jersey_1)
     index_1 = df[df["Jersey Number"] == option_jersey_1].index[0]
-    print("\nRemember to choose a different jersey number to be  able to compare.\n")
+    print("\n    Remember to choose a different jersey number to be  able to compare.\n")
     #We request the second jersey number to compare
-    question_2 = "Choose a jersey number: "
+    question_2 = "    Choose a jersey number: "
     option_jersey_2 = check_answer(question_2, list_available)
     option_jersey_2 = int(option_jersey_2)
     index_2 = df[df["Jersey Number"] == option_jersey_2].index[0]
@@ -124,14 +174,21 @@ def players_statistics(df):
 #Menu
 def menu_start():
     start = """
-    ****************  Manchester United  *******************
+    ****************************************************************
+    **********  Management System - Manchester United  *************
 
-    Welcome friend to your favourite place
-    The program has the following options:
+    Welcome friend to your favourite place. This is a CRUD
+    System. The program has the following options:
 
-    1- Show the characteristics of a specific player
-    2- Compare two players using the jersey numbers
-    3- Show General statistics
+    1-  Add new players to the system with their respective details
+    2-  View the complete list of current players
+    3-  Modify player information as needed, such as position, age,
+        height, or weight
+    4-  Remove players from the system if they are no longer part
+        of the team
+    5-  Show the characteristics of a specific player
+    6-  Compare two players using the jersey numbers
+    7-  Show General statistics
 
     """
     print(start)
@@ -140,8 +197,8 @@ def menu_start():
 def message_custom(sentence):
     print()
     print(sentence)
-    print("Thank you")
-    print("Come back soon\n")
+    print("    Thank you")
+    print("    Come back soon\n")
 
 #Main Function
 def main():
@@ -152,16 +209,24 @@ def main():
         jersey_numbers = df_mu["Jersey Number"].tolist()
         jersey_available = [str(dato) for dato in jersey_numbers]
         menu_start()
-        chosen_option = check_answer("Chose one of the options (1, 2, 3): ", options_menu)
+        chosen_option = check_answer("    Chose one of the options (1 - 7): ", options_menu)
         if chosen_option == "1":
-            player_characterics(jersey_available, df_mu)
+            players_new("Manchester_United.csv", available_yes_no)
         elif chosen_option == "2":
-            player_compare(jersey_available, df_mu)
+            show_data(df_mu)
         elif chosen_option == "3":
+            pass
+        elif chosen_option == "4":
+            pass
+        elif chosen_option == "5":
+            player_characterics(jersey_available, df_mu)
+        elif chosen_option == "6":
+            player_compare(jersey_available, df_mu)
+        elif chosen_option == "7":
             players_statistics(df_mu)
-        question_menu = check_answer("\nDo you want to return to the main menu? (y/n): ", available_yes_no)
+        question_menu = check_answer("\n    Do you want to return to the main menu? (y/n): ", available_yes_no)
         if question_menu in available_yes_no[0:3]:
-            print("\nLet's start again..!!!!\n")
+            print("\n    Let's start again..!!!!\n")
             reset_main_menu = True
         else:        
             message_custom("")
