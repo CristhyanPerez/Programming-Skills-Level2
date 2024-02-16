@@ -33,7 +33,6 @@ def transform_dataset(file):
 
 #Function to show the characteristics of a specific player throught the jersey number
 def player_characterics(list_options_jersey, df):
-    #Falta acomodar el print, puesto que ahora habrán más
     print("\nJersey number available to review:", ", ".join(map(str, list_options_jersey)), "\n")
     print()
     question = "Choose a jersey number: "
