@@ -28,7 +28,7 @@ def file_exists(file):
 
 #Funtion to transform the csv file into a pandas dataframe
 def transform_dataset(file):
-    dataframe = pd.read_csv(file, names = ["Name", "Jersey Number", "Position", "Age", "Height(cm)", "Weight(Kg)", "Goals", "Points Speed", "Points Assists", "Passing accuracy", "Defensive Involving"], sep = "\t")
+    dataframe = pd.read_csv(file, names = ["Name", "Jersey Number", "Position", "Age", "Height(cm)", "Weight(Kg)", "Goals", "Points Speed", "Points Assists", "Passing accuracy", "Defensive Involving"])
     return dataframe
 
 #Function to display the dataframe
@@ -40,7 +40,7 @@ def show_data(dataframe):
 def add_values_csv(file, data_list):
     path_csv_file = os.path.join(os.path.dirname(__file__), file)
     with open(path_csv_file, "a", newline = "") as file_csv:
-        write_csv = csv.writer(file_csv, delimiter = "\t")
+        write_csv = csv.writer(file_csv, delimiter = ",")
         write_csv.writerow(data_list)
 
 #Function to add new players
@@ -81,6 +81,34 @@ def players_new(file, options):
                 add_player = False
             else:
                 add_player = True
+
+#Function to add new players
+def players_delete(data, file, options):
+    list_players = data['Name'].tolist()
+    print("\n    Players available in the dataset:\n")
+    players_lenght = len(list_players)
+    list_numbers = []
+    for i in range(1, players_lenght + 1):
+        item = str(i)
+        list_numbers.append(item)
+    count = 0
+    for name in list_players:
+        print(f"    {list_numbers[count]}|    {name}")
+        count = count + 1
+    player_delete = check_answer(f"\n    Which player do you want to delete from the dataset(1-{players_lenght}): ", list_numbers)
+    question_add_player_01 = check_answer("\n    Are you sure about adding the player with these characteristics? (y/n): ", options)
+    if question_add_player_01 in options[0:3]:
+        index_player = int(player_delete) - 1
+        player = list_players[index_player]
+        index_data = data.index[data["Name"] == player]
+        #Delete the specific row from the dataframe
+        data = data.drop(0) #Delete the headers
+        data = data.drop(index_data)
+        #Write the update dataframe back to the CSV file
+        data.to_csv(file, index=False)
+        print("\n    Player successfully deleted..!!!!\n")
+    else:        
+        print("\n    OK..!!!!\n")
 
 #Function to show the characteristics of a specific player throught the jersey number
 def player_characterics(list_options_jersey, df):
@@ -217,7 +245,7 @@ def main():
         elif chosen_option == "3":
             pass
         elif chosen_option == "4":
-            pass
+            players_delete(df_mu, "Manchester_United.csv", available_yes_no)
         elif chosen_option == "5":
             player_characterics(jersey_available, df_mu)
         elif chosen_option == "6":
