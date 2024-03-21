@@ -36,15 +36,8 @@ def show_data(dataframe):
     print("\n    Full list of players:\n")
     print(dataframe.to_string(index=False))
 
-#Function to add values to csv file
-def add_values_csv(file, data_list):
-    path_csv_file = os.path.join(os.path.dirname(__file__), file)
-    with open(path_csv_file, "a", newline = "") as file_csv:
-        write_csv = csv.writer(file_csv, delimiter = ",")
-        write_csv.writerow(data_list)
-
 #Function to add new players
-def players_new(file, options):
+def players_new(data, file, options):
     add_player = True
     count = 1
     while add_player == True:
@@ -64,7 +57,8 @@ def players_new(file, options):
         list_data_player = [name_user, jersey_user, position_user, age_user, height_user, weight_user, goals_user, speed_user, assits_user, accuracy_user, defensive_user]
         question_add_player_01 = check_answer("\n    Are you sure about adding the player with these characteristics? (y/n): ", options)
         if question_add_player_01 in options[0:3]:
-            add_values_csv(file, list_data_player)
+            data.loc[len(data)] = list_data_player
+            data.to_csv(file, index=False, header=False)
             print("\n    Player successfully added..!!!!\n")
             question_add_player_02 = check_answer("\n    Do you want to add another player? (y/n): ", options)
             if question_add_player_02 in options[0:3]:
@@ -96,16 +90,15 @@ def players_delete(data, file, options):
         print(f"    {list_numbers[count]}|    {name}")
         count = count + 1
     player_delete = check_answer(f"\n    Which player do you want to delete from the dataset(1-{players_lenght}): ", list_numbers)
-    question_add_player_01 = check_answer("\n    Are you sure about adding the player with these characteristics? (y/n): ", options)
-    if question_add_player_01 in options[0:3]:
-        index_player = int(player_delete) - 1
-        player = list_players[index_player]
-        index_data = data.index[data["Name"] == player]
+    index_player = int(player_delete) - 1
+    player = list_players[index_player]
+    index_data = data.index[data["Name"] == player]
+    question_add_player_01 = check_answer(f"\n    Are you sure you should deleting '{player}' from the system? (y/n): ", options)
+    if question_add_player_01 in options[0:3]:    
         #Delete the specific row from the dataframe
-        data = data.drop(0) #Delete the headers
         data = data.drop(index_data)
         #Write the update dataframe back to the CSV file
-        data.to_csv(file, index=False)
+        data.to_csv(file, index=False, header=False)
         print("\n    Player successfully deleted..!!!!\n")
     else:        
         print("\n    OK..!!!!\n")
@@ -239,7 +232,7 @@ def main():
         menu_start()
         chosen_option = check_answer("    Chose one of the options (1 - 7): ", options_menu)
         if chosen_option == "1":
-            players_new("Manchester_United.csv", available_yes_no)
+            players_new(df_mu, "Manchester_United.csv", available_yes_no)
         elif chosen_option == "2":
             show_data(df_mu)
         elif chosen_option == "3":
