@@ -4,7 +4,7 @@ import csv
 import pandas as pd
 
 #Declare list
-options_menu = ["1", "2", "3", "4", "5", "6", "7"]
+options_menu = ["1", "2", "3", "4", "5", "6", "7", "8"]
 available_yes_no = ["y", "yes", "YES", "n", "no", "NO"]
 
 #Given a question and a list of answers, the function will evaluate if the
@@ -76,6 +76,51 @@ def players_new(data, file, options):
             else:
                 add_player = True
 
+def players_update(data, file, options):
+    #First, we need to know which row we are going to update
+    list_players = data['Name'].tolist()
+    print("\n    Players available in the dataset:\n")
+    players_lenght = len(list_players)
+    list_numbers = []
+    for i in range(1, players_lenght + 1):
+        item = str(i)
+        list_numbers.append(item)
+    count = 0
+    for name in list_players:
+        print(f"    {list_numbers[count]}|    {name}")
+        count = count + 1
+    player_update = check_answer(f"\n    Which player do you want to update from the dataset(1-{players_lenght}): ", list_numbers)
+    index_player_up = int(player_update) - 1
+    player = list_players[index_player_up]
+    index_data = data.index[data["Name"] == player]
+    #Second, we need to know which column we are going to update
+    list_columns = data.columns.tolist()
+    print("\n    Columns available in the dataset:\n")
+    columns_lenght = len(list_columns)
+    count = 0
+    for column in list_columns:
+        print(f"    {list_numbers[count]}|    {column}")
+        count = count + 1
+    column_update = check_answer(f"\n    What feature do you want to update from the dataset(1-{columns_lenght}): ", list_numbers)
+    index_column_up = int(column_update) - 1
+    column = list_columns[index_column_up]
+    value_dataframe = data.iloc[index_player_up, index_column_up]
+    print(f"    The real value of {column} - {player} is:" , value_dataframe)
+    updated_value = input("\n    Enter the updated value: ")
+    question_add_player_01 = check_answer(f"\n    Are you sure you update {player}'s information in the the system? (y/n): ", options)
+    if question_add_player_01 in options[0:3]:    
+        #Update the specific value from the dataframe
+        if index_column_up == 0 or index_column_up == 2:
+            data.iloc[index_player_up, index_column_up] = updated_value
+        else:
+            updated_value = int(updated_value)
+            data.iloc[index_player_up, index_column_up] = updated_value
+        #Write the update dataframe back to the CSV file
+        data.to_csv(file, index=False, header=False)
+        print("\n    Player successfully uodated..!!!!\n")
+    else:        
+        print("\n    OK..!!!!\n")
+
 #Function to add new players
 def players_delete(data, file, options):
     list_players = data['Name'].tolist()
@@ -93,8 +138,8 @@ def players_delete(data, file, options):
     index_player = int(player_delete) - 1
     player = list_players[index_player]
     index_data = data.index[data["Name"] == player]
-    question_add_player_01 = check_answer(f"\n    Are you sure you should deleting '{player}' from the system? (y/n): ", options)
-    if question_add_player_01 in options[0:3]:    
+    question_delete_player_01 = check_answer(f"\n    Are you sure you should deleting '{player}' from the system? (y/n): ", options)
+    if question_delete_player_01 in options[0:3]:    
         #Delete the specific row from the dataframe
         data = data.drop(index_data)
         #Write the update dataframe back to the CSV file
@@ -210,6 +255,7 @@ def menu_start():
     5-  Show the characteristics of a specific player
     6-  Compare two players using the jersey numbers
     7-  Show General statistics
+    8-  Exit
 
     """
     print(start)
@@ -221,7 +267,7 @@ def message_custom(sentence):
     print("    Thank you")
     print("    Come back soon\n")
 
-#Main Function
+#Main Function  
 def main():
     reset_main_menu = True
     while reset_main_menu == True:
@@ -230,26 +276,30 @@ def main():
         jersey_numbers = df_mu["Jersey Number"].tolist()
         jersey_available = [str(dato) for dato in jersey_numbers]
         menu_start()
-        chosen_option = check_answer("    Chose one of the options (1 - 7): ", options_menu)
-        if chosen_option == "1":
-            players_new(df_mu, "Manchester_United.csv", available_yes_no)
-        elif chosen_option == "2":
-            show_data(df_mu)
-        elif chosen_option == "3":
-            pass
-        elif chosen_option == "4":
-            players_delete(df_mu, "Manchester_United.csv", available_yes_no)
-        elif chosen_option == "5":
-            player_characterics(jersey_available, df_mu)
-        elif chosen_option == "6":
-            player_compare(jersey_available, df_mu)
-        elif chosen_option == "7":
-            players_statistics(df_mu)
-        question_menu = check_answer("\n    Do you want to return to the main menu? (y/n): ", available_yes_no)
-        if question_menu in available_yes_no[0:3]:
-            print("\n    Let's start again..!!!!\n")
-            reset_main_menu = True
-        else:        
+        chosen_option = check_answer("    Chose one of the options (1 - 8): ", options_menu)
+        if chosen_option in options_menu[0:7]:
+            if chosen_option == "1":
+                players_new(df_mu, "Manchester_United.csv", available_yes_no)
+            elif chosen_option == "2":
+                show_data(df_mu)
+            elif chosen_option == "3":
+                players_update(df_mu, "Manchester_United.csv", available_yes_no)
+            elif chosen_option == "4":
+                players_delete(df_mu, "Manchester_United.csv", available_yes_no)
+            elif chosen_option == "5":
+                player_characterics(jersey_available, df_mu)
+            elif chosen_option == "6": 
+                player_compare(jersey_available, df_mu)
+            elif chosen_option == "7":
+                players_statistics(df_mu)
+            question_menu = check_answer("\n    Do you want to return to the main menu? (y/n): ", available_yes_no)
+            if question_menu in available_yes_no[0:3]:
+                print("\n    Let's start again..!!!!\n")
+                reset_main_menu = True
+            else:        
+                message_custom("")
+                reset_main_menu = False
+        else:
             message_custom("")
             reset_main_menu = False
 
